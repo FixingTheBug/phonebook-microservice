@@ -1,0 +1,38 @@
+version: "3.7"
+
+services:
+    postgresql:
+        image: postgres:13.2
+        volumes:
+            - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql
+            - ./database/seed.sql:/docker-entrypoint-initdb.d/seed.sql
+        restart: always
+        ports:
+            - "5432:5432"
+        expose:
+            - "5432"
+        environment:
+            - POSTGRES_DB=phonebook
+            - POSTGRES_USER=chris
+            - POSTGRES_PASSWORD=password
+            - POSTGRES_ROOT_PASSWORD=password
+
+    backend:
+        image: node:14
+        volumes:
+          - "./backend:/api"
+        working_dir: /api/
+        command: sh -c "npm install && npm start"
+        ports:
+          - "3001:3000"
+        depends_on:
+         - postgresql
+
+    swagger-ui:
+        image: swaggerapi/swagger-ui
+        ports:
+            - "8080:8080"
+        volumes:
+            - ./swagger/api.yaml:/usr/share/nginx/html/swagger/api.yaml
+        environment:
+            API_URL: swagger/api.yaml

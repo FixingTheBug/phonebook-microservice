@@ -1,0 +1,237 @@
+swagger: "2.0"
+info:
+  description: "Documentation for the Node API for PointHealt"
+  version: "1.0.0"
+  title: "Swagger phonebook"
+  termsOfService: "http://swagger.io/terms/"
+  contact:
+    email: "chri.pasti@gmail.com"
+  license:
+    name: "MIT"
+    url: "https://opensource.org/licenses/MIT"
+host: "0.0.0.0:3000"
+basePath: "/v1"
+tags:
+- name: "contact"
+  description: "CRUD of contacts"
+- name: "company"
+  description: "CRUD of companies"
+- name: "auth"
+  description: "Everything related to authentication"
+paths:
+  /companies:
+    post:
+      tags:
+      - "company"
+      summary: "Add a new company"
+      description: "Create a new company and add it to the phonebook"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "body"
+        description: "Company object that needs to be added to the phonebook"
+        required: true
+        schema:
+          $ref: "#/definitions/Company"
+      responses:
+        "200":
+          description: "Company created"
+        "500":
+          description: "Error"
+  /contacts/:
+    get:
+      tags:
+      - "contact"
+      summary: "Show info for a contact"
+      description: "Show information for the specified contact. They can be filtered by ID or email"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "id"
+        in: "query"
+        description: "The contact ID"
+        type: "string"
+        items:
+          type: "integer"
+      - name: "email"
+        in: "query"
+        description: "The contact's email"
+        type: "string"
+        items:
+          type: "string"
+        collectionFormat: "multi"
+      responses:
+        "200":
+          description: "Contact retrieved"
+          schema:
+            type: "array"
+            items:
+              $ref: "#/definitions/Contact"
+        "500":
+          description: "Error"
+  /contacts:
+    post:
+      tags:
+      - "contact"
+      summary: "Add a new contact"
+      description: "Create a new contact and add it to the phonebook"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "body"
+        description: "Contact object that needs to be added to the phonebook"
+        required: true
+        schema:
+          $ref: "#/definitions/Contact"
+      responses:
+        "200":
+          description: "Contact created"
+        "500":
+          description: "Error"
+    put:
+      tags:
+      - "contact"
+      summary: "Update a contact"
+      description: "Update a contact's information. Only available for the cell_number"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "contactId"
+        in: "path"
+        description: "A contact's ID"
+        required: true
+        type: "integer"
+        items:
+          type: "integer"
+      - in: "body"
+        name: "cell_number"
+        description: "New cell number for that contact"
+        required: true
+      responses:
+        "200":
+          description: "Contact modified"
+        "500":
+          description: "Error"
+  /contacts/export:
+    get:
+      tags:
+      - "contact"
+      summary: "Export contacts"
+      description: "Export contacts to CSV file"
+      produces:
+      - "text/csv"
+      parameters:
+          responses:
+            "200":
+              description: "The CSV text"
+            "500":
+              description: "Error"
+  /companies/{companyId}:
+    get:
+      tags:
+      - "company"
+      - "contact"
+      summary: "Show info for a company"
+      description: "Show information for the specified company. Adding the ?include=contacts parameter to the query displays the related contacts, too"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "companyId"
+        in: "path"
+        description: "A company's ID"
+        required: true
+        type: "integer"
+        items:
+          type: "integer"
+        collectionFormat: "multi"
+      - name: "include"
+        in: "query"
+        description: "Related models to include in the query, separated by a comma"
+        type: "string"
+        items:
+          type: "string"
+          enum:
+          - "contacts"
+        collectionFormat: "multi"
+      responses:
+        "200":
+          description: "Company retrieved"
+          schema:
+            type: "array"
+            items:
+              $ref: "#/definitions/Company"
+        "500":
+          description: "Error"
+  /auth/login:
+    post:
+      tags:
+      - "auth"
+      summary: "Requests a JWT token"
+      description: "A new JWT token can be retrieved by sending the right credentials"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "body"
+        description: "Username and password of the user"
+        required: true
+      responses:
+        "200":
+          description: "JWT received"
+        "500":
+          description: "Error"
+definitions:
+  Contact:
+    type: "object"
+    required:
+    - "first_name"
+    - "last_name"
+    - "email"
+    - "cell_number"
+    - "company_id"
+    properties:
+      id:
+        type: "integer"
+        format: "int64"
+      first_name:
+        type: "string"
+        example: "John"
+      last_name:
+        type: "string"
+        example: "Smith"
+      email:
+        type: "string"
+        example: "j.smith@gmail.com"
+      cell_number:
+        type: "string"
+        example: "(512) 123-4567"
+      company_id:
+        type: "integer"
+        example: 1
+  Company:
+    type: "object"
+    required:
+    - "name"
+    - "phone"
+    properties:
+      id:
+        type: "integer"
+        format: "int64"
+      name:
+        type: "string"
+        example: "Walmart"
+      phone:
+        type: "string"
+        example: "800-123-4567"
+    xml:
+      name: "Company"
