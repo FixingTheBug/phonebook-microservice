@@ -28,6 +28,10 @@ The NodeJS application runs on 0.0.0.0:3001
 If any of these ports are busy in your machine, please change them in the
 `docker-compose.yml` file before building.
 
+### Env file
+
+For this example, the .env file is already included.
+
 ### Response format
 
 All the responses use the JSend specification, with the `status` and `data` objects:
